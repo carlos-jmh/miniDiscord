@@ -1,0 +1,105 @@
+<html>
+  <head>
+    <title>chatting</title>
+  </head>
+
+  <style>
+    #chat {
+      text-align: left;
+      background: #f1f1f1;
+      width: 500px;
+      min-height: 300px;
+      padding: 20px;
+    }
+  </style>
+
+  <body>
+    <center>
+      <h3>Chat</h3>
+      <pre id="chat"></pre>
+      <input placeholder="fancy name" id="username" type="text" autocomplete="off">
+      <input placeholder="say something" id="text" type="text">
+      <button id="general">Join "general"</button>
+      <button id="jokes">Join "jokes"</button>
+      <button id="memes">Join "memes"</button>
+    </center>
+
+    <script>
+      let usernameBox = document.getElementById("username");
+      let chatBox = document.getElementById("chat");
+      let msgBox = document.getElementById("text");
+      let generalBtn = document.getElementById("general");
+      let jokesBtn = document.getElementById("jokes");
+      let memesBtn = document.getElementById("memes");
+
+      let currRoom = "general";
+      let hubUrl = "ws://" + window.location.host + "/main/";
+      let name = "anonymous";
+      let ws;
+
+      const socketOpen = () => {
+        let line = "Status: Connected to '" + currRoom + "'\n";
+        chatBox.innerText += line;
+      };
+
+      const socketMessage = (msg) => {
+        let line = msg.data + "\n";
+        chatBox.innerText += line;
+      };
+
+      const socketClose = () => {
+        let line = "Status: Disconnected\n";
+        chatBox.innerText += line;
+      };
+
+      const socketNewRoom = (socket, hubUrl, newRoom) => {
+        if (socket) {
+            socket.close();
+        }
+        currRoom = newRoom;
+        let url = hubUrl + currRoom;
+        let ws = new WebSocket(url);
+        ws.onopen = socketOpen;
+        ws.onmessage = socketMessage;
+        ws.onclose = socketClose;
+        return ws;
+      };
+
+      ws = socketNewRoom(null, hubUrl, currRoom);
+
+      generalBtn.onclick = function () {
+        if (currRoom === "general") return;
+        chatBox.innerText = "";
+        ws = socketNewRoom(ws, hubUrl, "general");
+      };
+
+      jokesBtn.onclick = function () {
+        if (currRoom === "jokes") return;
+        chatBox.innerText = "";
+        ws = socketNewRoom(ws, hubUrl, "jokes");
+      };
+
+      memesBtn.onclick = function () {
+        if (currRoom === "memes") return;
+        chatBox.innerText = "";
+        ws = socketNewRoom(ws, hubUrl, "memes");
+      };
+
+      usernameBox.onkeydown = function (event) {
+        if (event.key === "Enter" && name.value !== "") {
+          name = usernameBox.value;
+          usernameBox.disabled = true;
+          msgBox.disabled = false;
+          msgBox.focus();
+        }
+      }
+
+      msgBox.onkeydown = function (event) {
+        if (event.key === "Enter" && msgBox.value !== "") {
+          ws.send("<" + name + "> " + msgBox.value);
+          msgBox.value = "";
+        }
+      };
+    </script>
+  </body>
+</html>
