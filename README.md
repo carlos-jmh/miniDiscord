@@ -7,5 +7,10 @@ Basic, simple, scalable :)
 # Usage
 `go run main.go`
 
-## Database
+### Database
 Implement database using `DAO` struct.
+
+## Libraries Used
+- gin
+- melody
+- go-away
