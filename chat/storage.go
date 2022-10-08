@@ -21,9 +21,9 @@ func NewDAO() *DAO {
 }
 
 func (d *DAO) Put(roomID string, msg string) {
-	ctx := context.Background()
 
-	_, _, _ = d.db.Collection("hub").Doc(roomID).Collection("messages").Add(ctx, map[string]interface{}{
+	doc := d.db.Collection("hub").Doc(roomID).Collection("messages")
+	_, _, _ = doc.Add(context.Background(), map[string]interface{}{
         "message": msg,
 		"timestamp": time.Now().Format(time.RFC3339),
 	})
@@ -31,10 +31,9 @@ func (d *DAO) Put(roomID string, msg string) {
 
 func (d *DAO) Get(roomID string) []string {
 	allMessages := []string{}
-	ctx := context.Background()
 
-	// get all "messages" documents in order from oldest to newest
-	it, err := d.db.Collection("hub").Doc(roomID).Collection("messages").OrderBy("timestamp", firestore.Asc).Documents(ctx).GetAll()
+	doc := d.db.Collection("hub").Doc(roomID).Collection("messages")
+	it, err := doc.OrderBy("timestamp", firestore.Asc).Documents(context.Background()).GetAll()
 	if err != nil {
 		fmt.Println("error getting data from firestore: ", err)
 		return nil
