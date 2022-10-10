@@ -7,9 +7,10 @@
     #chat {
       text-align: left;
       background: #f1f1f1;
-      width: 500px;
+      width: 700px;
       min-height: 300px;
       padding: 20px;
+      overflow-y: auto;
     }
   </style>
 
@@ -18,7 +19,7 @@
       <h3>Chat</h3>
       <pre id="chat"></pre>
       <input placeholder="fancy name" id="username" type="text" autocomplete="off">
-      <input placeholder="say something" id="text" type="text">
+      <input placeholder="say something" id="text" type="text" autocomplete="off">
       <button id="general">Join "general"</button>
       <button id="jokes">Join "jokes"</button>
       <button id="memes">Join "memes"</button>
@@ -35,20 +36,19 @@
       let currRoom = "general";
       let hubUrl = "ws://" + window.location.host + "/main/";
       let name = "anonymous";
-      let ws;
 
       const socketOpen = () => {
         let line = "Status: Connected to '" + currRoom + "'\n";
         chatBox.innerText += line;
       };
 
-      const socketMessage = (msg) => {
-        let line = msg.data + "\n";
+      const socketClose = () => {
+        let line = "Status: Disconnected\n";
         chatBox.innerText += line;
       };
 
-      const socketClose = () => {
-        let line = "Status: Disconnected\n";
+      const socketMessage = (msg) => {
+        let line = msg.data + "\n";
         chatBox.innerText += line;
       };
 
@@ -60,8 +60,8 @@
         let url = hubUrl + currRoom;
         let ws = new WebSocket(url);
         ws.onopen = socketOpen;
-        ws.onmessage = socketMessage;
         ws.onclose = socketClose;
+        ws.onmessage = socketMessage;
         return ws;
       };
 
