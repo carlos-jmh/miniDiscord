@@ -6,6 +6,7 @@ require (
 	github.com/TwiN/go-away v1.6.8
 	github.com/gin-gonic/gin v1.8.1
 	github.com/olahol/melody v1.1.1
+	google.golang.org/api v0.96.0
 )
 
 require (
@@ -25,7 +26,6 @@ require (
 	golang.org/x/sync v0.0.0-20220601150217-0de741cfad7f // indirect
 	golang.org/x/time v0.0.0-20220609170525-579cf78fd858 // indirect
 	golang.org/x/xerrors v0.0.0-20220609144429-65e65417b02f // indirect
-	google.golang.org/api v0.96.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20220920201722-2b89144ce006 // indirect
 	google.golang.org/grpc v1.49.0 // indirect

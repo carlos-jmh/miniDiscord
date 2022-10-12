@@ -2,13 +2,14 @@ package chat
 
 import (
 	"context"
-	"fmt"
+	"log"
 	"time"
 
 	"cloud.google.com/go/firestore"
 	firebase "firebase.google.com/go"
 	"google.golang.org/api/option"
 )
+
 // DAO (data access object) interacts with a database
 type DAO struct {
 	db *firestore.Client
@@ -20,43 +21,65 @@ func NewDAO() *DAO {
 	}
 }
 
-func (d *DAO) Put(roomID string, msg string) {
+// Put saves a message to the database
+func (d *DAO) Put(room *Room, msg *Message) {
+	ctx := context.Background()
 
-	doc := d.db.Collection("hub").Doc(roomID).Collection("messages")
-	_, _, _ = doc.Add(context.Background(), map[string]interface{}{
-        "message": msg,
-		"timestamp": time.Now().Format(time.RFC3339),
+	doc := d.db.Collection(room.ParentHub.Name).
+		Doc(room.Name).
+		Collection("messages")
+
+	_, _, _ = doc.Add(ctx, map[string]interface{}{
+		"timestamp": msg.Timestamp,
+		"message":   msg.Content,
 	})
 }
 
-func (d *DAO) Get(roomID string) []string {
-	allMessages := []string{}
+// Get retrieves messages from the database
+func (d *DAO) Get(room *Room) []*Message {
+	ctx := context.Background()
 
-	doc := d.db.Collection("hub").Doc(roomID).Collection("messages")
-	it, err := doc.OrderBy("timestamp", firestore.Asc).Documents(context.Background()).GetAll()
+	messagesCollection := d.db.Collection(room.ParentHub.Name).
+		Doc(room.Name).
+		Collection("messages")
+
+	documents, err := messagesCollection.OrderBy("timestamp", firestore.Asc).
+		Documents(ctx).
+		GetAll()
 	if err != nil {
-		fmt.Println("error getting data from firestore: ", err)
+		log.Println("error getting data from firestore: ", err)
 		return nil
 	}
 
-	for _, document := range it {
-		allMessages = append(allMessages, document.Data()["message"].(string))
+	var allMessages []*Message
+
+	for _, document := range documents {
+		currMsg := &Message{
+			Timestamp: document.Data()["timestamp"].(time.Time),
+			Content:   document.Data()["message"].(string),
+		}
+		allMessages = append(allMessages, currMsg)
 	}
 
-	return  allMessages
+	return allMessages
 }
 
+// firebaseInit initializes a connection to the database
 func firebaseInit() *firestore.Client {
+	ctx := context.Background()
+
+	// Replace this with your own credentials
 	opt := option.WithCredentialsFile("secret.json")
-	app, err := firebase.NewApp(context.Background(), nil, opt)
+
+	app, err := firebase.NewApp(ctx, nil, opt)
 	if err != nil {
-		fmt.Println("error initializing app: ", err)
+		log.Println("error initializing app: ", err)
 		return nil
 	}
-	
-	client, err := app.Firestore(context.Background())
+
+	client, err := app.Firestore(ctx)
 	if err != nil {
-		fmt.Println("error initializing Firestore client: ", err)
+		log.Println("error initializing Firestore client: ", err)
 		return nil
 	}
 
