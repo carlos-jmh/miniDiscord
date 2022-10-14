@@ -9,6 +9,7 @@ Basic, simple, scalable :)
 
 ### Database
 Implement database using `DAO` struct.
+
 Currently using Google Cloud's Firebase.
 
 ## Libraries Used
