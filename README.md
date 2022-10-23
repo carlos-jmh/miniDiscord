@@ -13,6 +13,7 @@ Implement database using `DAO` struct.
 Currently using Google Cloud's Firebase.
 
 // Firebase Walkthrough (<https://firebase.google.com/docs/admin/setup#initialize-sdk>)
+
 // SDK Setup (<https://firebase.google.com/docs/admin/setup#go>)
 ### Setting up Firebase
 1. Create a project in Firebase. (<https://console.firebase.google.com/>)
